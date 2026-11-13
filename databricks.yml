@@ -51,7 +51,7 @@ targets:
     default: true
     mode: development
     presets:
-      name_prefix: ""      # deploy as "qsr-command-center", not "[dev <user>] ..."
+      name_prefix: ""      # deploy as "qsr-command-center-demo", not "[dev <user>] ..."
 
   prod:
     mode: production

@@ -76,7 +76,7 @@ flowchart LR
 
 1. **Clone** the repo.
    ```bash
-   git clone <your-repo-url> qsr-command-center
+   git clone https://github.com/jonathan-whiteley/qsr-command-center-demo.git qsr-command-center
    cd qsr-command-center/app
    ```
 2. **Install** the app dependencies in a virtual environment.
@@ -115,7 +115,7 @@ Add `--profile <profile>` to each command if you have more than one Databricks p
    ```
 
 > [!WARNING]
-> **Adopting an existing app.** The app name is fixed to `qsr-command-center` in `resources/app.yml`. If an app with that name already exists in the target workspace, `bundle deploy` updates that app in place. To deploy a second copy, change `name` in `resources/app.yml` first. Renaming the app later creates a new app with a new service principal and URL.
+> **Adopting an existing app.** The app name is fixed to `qsr-command-center-demo` in `resources/app.yml`. If an app with that name already exists in the target workspace, `bundle deploy` updates that app in place. To deploy a second copy, change `name` in `resources/app.yml` first. Renaming the app later creates a new app with a new service principal and URL.
 
 To remove the app, run `databricks bundle destroy -t dev --profile <profile>`. This does not remove the grants the bundle made, so revoke them yourself if you no longer need them.
 
@@ -173,7 +173,7 @@ Pass the same `--var` values to `bundle run` and `bundle destroy`. The `cc_catal
 | **Every user of the app** | Access to the app, and `CAN_VIEW` on the Genie space | Ask runs with the user's token. The app requests the `genie`, `sql`, and `dashboards.genie` scopes |
 
 > [!TIP]
-> **Can't grant on your schema?** Ask the schema owner to run the grants for the service principal, using the app's service principal name from `databricks apps get qsr-command-center`.
+> **Can't grant on your schema?** Ask the schema owner to run the grants for the service principal, using the app's service principal name from `databricks apps get qsr-command-center-demo`.
 
 ## 📁 Project structure
 
@@ -203,7 +203,7 @@ Pass the same `--var` values to `bundle run` and `bundle destroy`. The `cc_catal
 | Local run **shows another workspace's data** | The local run read `/Workspace/Shared/command-center/config.json`. Set `CC_CONFIG_PATH=` before starting the server. |
 | Local run returns **errors on every data panel** | Export `DATABRICKS_HOST` and `DATABRICKS_WAREHOUSE_ID` with `DATABRICKS_CONFIG_PROFILE`. Local runs do not get them from the App runtime. |
 | Page loads **blank** or without styling | The browser cannot reach unpkg.com, which serves React and Babel. Allow it or run the UI on a network that can reach it. |
-| `bundle deploy` **updates an app you did not expect** | The app name is fixed. Read the Adopting an existing app warning, and rename `qsr-command-center` in `resources/app.yml` before deploying a second copy. |
+| `bundle deploy` **updates an app you did not expect** | The app name is fixed. Read the Adopting an existing app warning, and rename `qsr-command-center-demo` in `resources/app.yml` before deploying a second copy. |
 | App is **stopped after deploy** | Run `databricks bundle run qsr_command_center_app -t dev`. `bundle deploy` does not start it. |
 
 ## 🗂️ About the data

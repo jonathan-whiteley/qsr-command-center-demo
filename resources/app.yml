@@ -13,7 +13,7 @@
 resources:
   apps:
     qsr_command_center_app:
-      name: "qsr-command-center"
+      name: "qsr-command-center-demo"
       description: "QSR Command Center — multi-module operational app over governed Lakehouse data"
       source_code_path: ../app
 
