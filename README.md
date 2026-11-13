@@ -63,7 +63,7 @@ flowchart LR
 ## 🚀 Quick start
 
 > [!NOTE]
-> The repo ships no customer data. The data is synthetic and the brand is fictional. Generate the Guest Sentiment table with the notebooks in `notebooks/sentiment/`, and load or generate the operational tables (`facts_*`, `dims_*`) in a catalog you can read. The defaults point at `jdub_demo`, which is a demo catalog, so change them to your own catalog and schema.
+> The repo ships no customer data. The data is synthetic and the brand is fictional. Generate the Guest Sentiment table with the notebooks in `notebooks/sentiment/`, and generate the operational tables (`facts_*`, `dims_*`) with `notebooks/ops/00_generate_ops_data`, in a catalog you can read. The defaults point at `jdub_demo`, which is a demo catalog, so change them to your own catalog and schema.
 
 **Choose your path:**
 
@@ -121,6 +121,26 @@ To remove the app, run `databricks bundle destroy -t dev --profile <profile>`. T
 
 > [!NOTE]
 > **Built UI is not compiled.** The UI is plain JSX loaded in the browser, so there is no build step. Edit files in `app/static/` and redeploy.
+
+### 📊 Optional: generate the operational tables
+
+The Today, Labor, and Inventory tabs read eight operational tables. The notebook `notebooks/ops/00_generate_ops_data` creates them as **synthetic data** for a fictional brand. It is seeded, so the same settings always produce the same rows. Run it on serverless compute.
+
+1. **Run** `00_generate_ops_data`. It overwrites these tables under the `catalog` and `schema` widgets, which default to `main` and `qsr_ops_demo`. Set `seed` for a different sample.
+
+   | Table | Rows | Read by |
+   |-------|------|---------|
+   | `dims_stores` | 20 stores | Store names and cities |
+   | `dims_items` | 50 SKUs | Inventory categories and item names |
+   | `dims_employees` | 240 crew | Connectivity banner counts |
+   | `facts_sales_daypart` | 4 dayparts for 60 days, per store | Today KPIs and Labor forecast cards |
+   | `facts_labor_daypart` | 4 dayparts and 4 roles for 60 days, per store | Labor plan and labor % |
+   | `facts_sales_inventory_daily` | 50 SKUs for 60 days, per store | Stock health and watched items |
+   | `facts_purchase_orders` | One row per PO line | Staged reorders |
+   | `facts_customer_feedback` | 1,000 guest responses | Connectivity banner counts |
+
+2. **Match** `anchor_date` (default `2026-06-22`) to `ANCHOR_DATE` in `app/app.yaml`. The Today, Labor, and Inventory queries are anchored on that date, so the tables need rows for it. The notebook builds 60 days up to the anchor.
+3. **Point** `CC_CATALOG` and `CC_SCHEMA` in `app/app.yaml` at the same schema, then redeploy the app or restart it locally.
 
 ### 🧬 Optional: generate the Guest Sentiment table
 
@@ -187,6 +207,7 @@ Pass the same `--var` values to `bundle run` and `bundle destroy`. The `cc_catal
 │   └── static/             Home.html and the JSX views in static/app/
 ├── databricks.yml          bundle name, variables, and dev/prod targets
 ├── resources/app.yml       the app resource: warehouse and table grants, user scopes
+├── notebooks/ops/          synthetic operational tables for Today, Labor, and Inventory
 ├── notebooks/sentiment/    synthetic review pipeline: 01 generate, 02 enrich, 03 Genie space
 └── docs/images/            README screenshots
 ```
@@ -197,7 +218,7 @@ Pass the same `--var` values to `bundle run` and `bundle destroy`. The `cc_catal
 |---|---|
 | Ask shows **`missing OBO context`** | Ask needs the forwarded token that only the App runtime sends. A local run cannot provide it. Test Ask in a deployed app. |
 | Ask shows **`no matching space`** or **`no Genie space resolved`** | Set `GENIE_SPACE_ID` in `app/app.yaml` to the space ID from notebook 03, or rename the space to match `GENIE_TITLE` (default `QSR Guest Reviews`). |
-| A module is **empty or errors**, with data expected | Check that `CC_CATALOG`, `CC_SCHEMA`, and the sentiment variables in `app/app.yaml` name tables that exist. Grant the app's service principal `USE CATALOG`, `USE SCHEMA`, and `SELECT`. |
+| A module is **empty or errors**, with data expected | If the operational tables do not exist yet, run `notebooks/ops/00_generate_ops_data`. Check that `CC_CATALOG`, `CC_SCHEMA`, and the sentiment variables in `app/app.yaml` name tables that exist. Grant the app's service principal `USE CATALOG`, `USE SCHEMA`, and `SELECT`. |
 | Deploy **fails on the table grant** | The table named by the `sentiment_*` variables must already exist, and you need ownership or `MANAGE` on it. Build it with notebooks 01 to 03, or pass `--var` values for a table that exists. |
 | Notebook 03 **stops with `Set the warehouse_id widget`** | Notebook 03 has no default warehouse. Enter a SQL warehouse ID in the `warehouse_id` widget. |
 | Local run **shows another workspace's data** | The local run read `/Workspace/Shared/command-center/config.json`. Set `CC_CONFIG_PATH=` before starting the server. |
